@@ -51,3 +51,9 @@ build.log
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Build-Umgebungen (komplett ausschließen)
+buildozer-venv*/
+.venv/
+venv/
+env/

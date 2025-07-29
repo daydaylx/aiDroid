@@ -1,12 +1,13 @@
 [app]
 title = OpenRouter CodeGen
-package.name = openroutercodegen  
+package.name = openroutercodegen
 package.domain = org.david.codegen
 
 source.dir = .
 source.include_exts = py,png,kv,txt
 
 version = 1.0
+
 requirements = python3,kivy,requests,urllib3,certifi
 
 p4a.bootstrap = sdl2
