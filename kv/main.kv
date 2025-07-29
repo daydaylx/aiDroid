@@ -20,6 +20,31 @@
             color: 1, 1, 1, 1
             bold: True
         
+        # API Key Input (war gefehlt!)
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: dp(40)
+            spacing: dp(10)
+            
+            TextInput:
+                hint_text: "🔑 OpenRouter API Key eingeben"
+                text: app.api_key
+                password: True
+                multiline: False
+                background_color: 0.2, 0.2, 0.2, 1
+                foreground_color: 1, 1, 1, 1
+                on_text: app.api_key = self.text
+            
+            Button:
+                text: "📡 Modelle\nladen"
+                size_hint_x: None
+                width: dp(80)
+                background_color: 0.2, 0.6, 0.2, 1
+                color: 1, 1, 1, 1
+                font_size: sp(10)
+                on_release: app.load_models()
+        
         # Model Selection
         BoxLayout:
             orientation: "horizontal"
