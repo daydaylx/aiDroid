@@ -2,26 +2,26 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ master ]  # ← Korrekt auf master Branch
+    branches: [ main ]           # ⇽ ggf. auf "master" ändern, wenn du oben master behältst
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Build with Buildozer
-      uses: ArtemSBulgakov/buildozer-action@v1
-      with:
-        command: buildozer android debug
-        buildozer_version: stable
-        
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: openrouter-codegen-apk
-        path: bin/*.apk
-        retention-days: 30
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1   # stabile Action
+        with:
+          command: buildozer android debug
+          buildozer_version: stable               # nutzt kivy/buildozer:20220423.0
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: openrouter-codegen-apk
+          path: bin/*.apk
+          retention-days: 30
