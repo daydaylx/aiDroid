@@ -13,7 +13,7 @@ Window.size = (400, 700)  # Desktop test
 Window.clearcolor = (0.1, 0.1, 0.1, 1)
 
 class CodeGenApp(App):
-    api_key = StringProperty("sk-your-openrouter-api-key-here")
+    api_key = StringProperty("")
     system_prompt = StringProperty("Du bist ein erfahrener Python-Entwickler.")
     user_prompt = StringProperty("")
     output_text = StringProperty("Hier erscheint der generierte Code...")

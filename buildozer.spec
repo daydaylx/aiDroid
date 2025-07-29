@@ -7,7 +7,7 @@ source.dir = .
 source.include_exts = py,png,kv,txt
 
 version = 1.0
-requirements = python3==3.11.6,kivy==2.1.0,requests==2.31.0,urllib3==1.26.16,certifi
+requirements = python3==3.11,kivy==2.1.0,requests==2.31.0,urllib3==1.26.16,certifi==2023.7.22
 
 p4a.bootstrap = sdl2
 p4a.branch = develop
