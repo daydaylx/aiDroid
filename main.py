@@ -20,21 +20,20 @@ class CodeGenApp(App):
     models = ListProperty([])
     selected_model = StringProperty("")
     is_loading = BooleanProperty(False)
-    
+
     def build(self):
         self.title = "OpenRouter CodeGen"
         return Builder.load_file("kv/main.kv")
-    
+
     def on_start(self):
         if self.api_key:
             self.load_models()
-    
+
     def load_models(self):
         """Modelle von OpenRouter laden"""
         if not self.api_key.strip():
             self.show_popup("Fehler", "API Key fehlt")
             return
-            
         try:
             models = fetch_models(self.api_key)
             if models:
@@ -45,7 +44,7 @@ class CodeGenApp(App):
                 self.show_popup("Fehler", "Keine Modelle gefunden - API Key prüfen")
         except Exception as e:
             self.show_popup("API Fehler", str(e))
-    
+
     def generate(self):
         """Code generieren"""
         if not self.api_key.strip():
@@ -57,10 +56,10 @@ class CodeGenApp(App):
         if not self.selected_model:
             self.show_popup("Fehler", "Modell auswählen")
             return
-        
+
         self.is_loading = True
         self.output_text = "⏳ Generiere Code..."
-        
+
         try:
             result = generate_code(
                 self.api_key,
@@ -73,7 +72,7 @@ class CodeGenApp(App):
             self.output_text = f"❌ Fehler: {str(e)}"
         finally:
             self.is_loading = False
-    
+
     def copy_output(self):
         """Output in Zwischenablage"""
         if self.output_text and self.output_text != "Hier erscheint der generierte Code...":
@@ -81,12 +80,12 @@ class CodeGenApp(App):
             self.show_popup("Kopiert", "Code wurde kopiert!")
         else:
             self.show_popup("Fehler", "Nichts zu kopieren")
-    
+
     def clear_output(self):
         """Output löschen"""
         self.output_text = "Hier erscheint der generierte Code..."
         self.user_prompt = ""
-    
+
     def show_popup(self, title, message):
         popup = Popup(
             title=title,
@@ -98,3 +97,4 @@ class CodeGenApp(App):
 
 if __name__ == "__main__":
     CodeGenApp().run()
+
