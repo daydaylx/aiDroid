@@ -15,7 +15,6 @@ from kivy.uix.label import Label
 from kivy.core.clipboard import Clipboard
 from kivy.logger import Logger
 from kivy.clock import Clock
-
 from utils import fetch_models, generate_code_stream_with_memory, generate_code, clear_cache
 from memory import memory
 
@@ -147,7 +146,6 @@ class CodeGenApp(App):
             self.current_thread = threading.Thread(target=stream_task, daemon=True)
             self.current_thread.start()
         else:
-            # Normal-Modus
             self.status_text = "Generiere Code..." + (" + 🧠 Memory" if self.memory_enabled else "")
             self.output_text = "⏳ Generiere Code...\n\nBitte warten, das kann bis zu 30 Sekunden dauern."
             def generate_task():
