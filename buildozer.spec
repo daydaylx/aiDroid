@@ -2,11 +2,10 @@
 title             = OpenRouter CodeGen
 package.name       = openroutercodegen
 package.domain     = org.david.codegen
-
 source.dir         = .
 source.include_exts = py,kv,png,ttf,txt
 
-version            = 1.1
+version            = 2.2
 
 requirements       = \
     python3==3.11.5,\
@@ -27,9 +26,7 @@ android.ndk        = 26b
 android.ndk_api    = 24
 android.permissions = INTERNET
 android.archs      = arm64-v8a
-
 android.network_security_config = network_config.xml
-
 orientation        = portrait
 fullscreen         = 0
 
