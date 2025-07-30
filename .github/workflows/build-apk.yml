@@ -10,17 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Build with Buildozer
+    - uses: actions/checkout@v4
+
+    - name: Build with Buildozer (optimized)
       uses: ArtemSBulgakov/buildozer-action@v1
       with:
         command: buildozer android debug
         buildozer_version: stable
-        
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
+
+    - uses: actions/upload-artifact@v4
       with:
         name: openrouter-codegen-apk
         path: bin/*.apk
