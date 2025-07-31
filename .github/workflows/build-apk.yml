@@ -3,23 +3,109 @@ name: Build Android APK
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-20.04  # Stable Ubuntu version
+    timeout-minutes: 90    # Longer timeout for Android builds
+    
     steps:
-    - uses: actions/checkout@v4
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🎨 Create Required Assets
+      run: |
+        echo "Creating icon and presplash images..."
+        
+        # Install ImageMagick
+        sudo apt-get update
+        sudo apt-get install -y imagemagick
+        
+        # Create icon.png (512x512)
+        convert -size 512x512 xc:'#1f1f32' \
+                -fill '#64c8ff' -draw 'circle 256,256 256,100' \
+                -fill '#1f1f32' -draw 'circle 256,256 256,150' \
+                -fill white -pointsize 80 -gravity center -annotate +0+0 'AI' \
+                icon.png
+        
+        # Create presplash.png (1080x1920)
+        convert -size 1080x1920 xc:'#1a1a2a' \
+                -fill '#64c8ff' -draw 'circle 540,600 540,450' \
+                -fill '#1a1a2a' -draw 'circle 540,600 540,500' \
+                -fill white -pointsize 120 -gravity center -annotate +0-300 'aiDroid' \
+                -fill '#96b4ff' -pointsize 60 -gravity center -annotate +0-150 'Samsung S25 Pro' \
+                -fill '#64c8ff' -pointsize 40 -gravity center -annotate +0+400 'Loading...' \
+                presplash.png
+        
+        echo "✅ Assets created successfully"
+        ls -la *.png
+        file *.png
 
-    - name: Build with Buildozer
+    - name: 🛠️ Setup Build Environment
+      run: |
+        # Free up disk space
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf "/usr/local/share/boost"
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        
+        # Show available space
+        df -h
+        
+    - name: 🔨 Build APK with Buildozer
       uses: ArtemSBulgakov/buildozer-action@v1
       with:
         command: buildozer android debug
         buildozer_version: stable
-
-    - uses: actions/upload-artifact@v4
+      env:
+        # Environment variables for build optimization
+        GRADLE_OPTS: "-Xmx6144m -Dorg.gradle.daemon=false -Dorg.gradle.parallel=false"
+        JAVA_OPTS: "-Xmx4096m"
+        # Reduce memory usage
+        BUILDOZER_LOG_LEVEL: 1
+        
+    - name: 📊 Build Results
+      if: always()
+      run: |
+        echo "=== BUILD SUMMARY ==="
+        echo "Status: ${{ job.status }}"
+        echo "Build completed at: $(date)"
+        
+        if [ -d "bin" ]; then
+          echo "APK files found:"
+          ls -la bin/
+          for apk in bin/*.apk; do
+            if [ -f "$apk" ]; then
+              echo "APK: $apk"
+              echo "Size: $(du -h "$apk" | cut -f1)"
+              file "$apk"
+            fi
+          done
+        else
+          echo "❌ No bin directory found"
+        fi
+        
+        if [ -d ".buildozer" ]; then
+          echo "Buildozer cache size: $(du -sh .buildozer)"
+        fi
+        
+    - name: 📤 Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      if: success()
       with:
-        name: openrouter-codegen-apk
+        name: aiDroid-S25-APK-${{ github.run_number }}
         path: bin/*.apk
         retention-days: 30
+        
+    - name: 📝 Upload Build Logs
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: build-logs-${{ github.run_number }}
+        path: |
+          .buildozer/
+          *.log
+        retention-days: 7

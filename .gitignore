@@ -6,9 +6,9 @@ bin/
 
 # Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
 build/
 develop-eggs/
@@ -25,23 +25,21 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Virtual Environment
-buildozer-venv/
+# Virtual environments
 venv/
 env/
-
-# API Keys & Logs
-apikey.txt
-buildozer_full.log
-build.log
-*.log
+ENV/
+env.bak/
+venv.bak/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
@@ -52,11 +50,14 @@ build.log
 ehthumbs.db
 Thumbs.db
 
-# Build-Umgebungen (komplett ausschließen)
-buildozer-venv*/
-.venv/
-venv/
-env/
-# Backup directories
+# Logs
+*.log
+buildozer.log
+
+# Cache
+cache/
+*.cache
+
+# Backup files
+*_backup*
 backup/
-*_backup*/
