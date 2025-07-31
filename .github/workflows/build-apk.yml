@@ -1,4 +1,4 @@
-name: Build Android APK - Auto Format
+name: Build Android APK - No Formatting
 
 on:
   push:
@@ -13,50 +13,95 @@ jobs:
     steps:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        
-    - name: 🐍 Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-        
-    - name: 🎨 Auto-Format Code
-      run: |
-        pip install black
-        black . --line-length=100
-        
-    - name: 💾 Commit Formatting Changes
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        git diff --staged --quiet || git commit -m "🎨 AUTO: Black formatting applied"
-        git push || echo "No formatting changes needed"
-      continue-on-error: true
       
     - name: 🧹 Free Disk Space
       run: |
+        echo "Freeing up disk space..."
         sudo rm -rf /usr/share/dotnet
         sudo rm -rf /opt/ghc
+        sudo rm -rf /usr/local/share/boost
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        echo "Available disk space:"
         df -h
         
-    - name: 🎨 Create Assets
+    - name: 🎨 Create Required Assets
       run: |
-        sudo apt-get update && sudo apt-get install -y imagemagick
-        convert -size 512x512 xc:'#2196F3' -fill white -pointsize 80 -gravity center -annotate +0+0 'AI' icon.png
-        convert -size 1080x1920 xc:'#1565C0' -fill white -pointsize 120 -gravity center -annotate +0-200 'aiDroid' presplash.png
+        echo "Installing ImageMagick..."
+        sudo apt-get update
+        sudo apt-get install -y imagemagick
         
-    - name: 🔨 Build APK
+        echo "Creating icon.png (512x512)..."
+        convert -size 512x512 xc:'#2196F3' \
+                -fill white -pointsize 80 -gravity center \
+                -annotate +0+0 'AI' \
+                icon.png
+                
+        echo "Creating presplash.png (1080x1920)..."
+        convert -size 1080x1920 xc:'#1565C0' \
+                -fill white -pointsize 120 -gravity center \
+                -annotate +0-200 'aiDroid' \
+                -pointsize 60 -annotate +0+100 'Samsung S25 Pro' \
+                -pointsize 40 -annotate +0+300 'Loading...' \
+                presplash.png
+        
+        echo "✅ Assets created successfully"
+        ls -la *.png
+        file *.png
+
+    - name: 🔨 Build APK with Buildozer
       uses: ArtemSBulgakov/buildozer-action@v1
       with:
         command: buildozer android debug
         buildozer_version: stable
+      env:
+        GRADLE_OPTS: "-Xmx4096m -Dorg.gradle.daemon=false -Dorg.gradle.parallel=false"
+        JAVA_OPTS: "-Xmx2048m"
+        BUILDOZER_LOG_LEVEL: 1
         
-    - name: 📤 Upload APK
+    - name: 📊 Build Results Analysis
+      if: always()
+      run: |
+        echo "=== BUILD ANALYSIS ==="
+        echo "Build Status: ${{ job.status }}"
+        echo "Timestamp: $(date)"
+        
+        echo "=== APK FILES ==="
+        if [ -d "bin" ]; then
+          echo "APK files found:"
+          ls -la bin/
+          for apk in bin/*.apk; do
+            if [ -f "$apk" ]; then
+              echo "📱 APK: $apk"
+              echo "📏 Size: $(du -h "$apk" | cut -f1)"
+              echo "🔍 Type: $(file "$apk")"
+            fi
+          done
+        else
+          echo "❌ No bin directory found"
+        fi
+        
+        echo "=== CACHE INFO ==="
+        if [ -d ".buildozer" ]; then
+          echo "📦 Buildozer cache size: $(du -sh .buildozer 2>/dev/null || echo 'N/A')"
+        fi
+        
+        echo "=== DISK SPACE ==="
+        df -h
+        
+    - name: 📤 Upload APK Artifact
       uses: actions/upload-artifact@v4
       if: success()
       with:
-        name: aiDroid-S25-APK
+        name: aiDroid-S25-APK-Build-${{ github.run_number }}
         path: bin/*.apk
-
+        retention-days: 30
+        
+    - name: 📝 Upload Build Logs on Failure
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: build-logs-${{ github.run_number }}
+        path: |
+          .buildozer/
+          *.log
+        retention-days: 7

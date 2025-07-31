@@ -70,3 +70,5 @@ backup/
 *.temp
 temp/
 
+# Black/Ruff config (entfernt um Konflikte zu vermeiden)
+pyproject.toml
