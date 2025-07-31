@@ -11,40 +11,19 @@ jobs:
     timeout-minutes: 90
     
     steps:
-    - name: 📥 Checkout Repository
+    - name: 📥 Checkout
       uses: actions/checkout@v4
       
-    - name: 🎨 Create Required Assets
+    - name: 🎨 Create Assets
       run: |
-        sudo apt-get update
-        sudo apt-get install -y imagemagick
-        
-        # Icon erstellen
-        convert -size 512x512 xc:'#1f1f32' \
-                -fill '#64c8ff' -draw 'circle 256,256 256,100' \
-                -fill '#1f1f32' -draw 'circle 256,256 256,150' \
-                -fill white -pointsize 80 -gravity center -annotate +0+0 'AI' \
-                icon.png
-        
-        # Presplash erstellen
-        convert -size 1080x1920 xc:'#1a1a2a' \
-                -fill '#64c8ff' -draw 'circle 540,600 540,450' \
-                -fill '#1a1a2a' -draw 'circle 540,600 540,500' \
-                -fill white -pointsize 120 -gravity center -annotate +0-300 'aiDroid' \
-                -fill '#96b4ff' -pointsize 60 -gravity center -annotate +0-150 'Samsung S25' \
-                presplash.png
-        
-        echo "✅ Assets created"
-        ls -la *.png
+        sudo apt-get update && sudo apt-get install -y imagemagick
+        convert -size 512x512 xc:'#1f1f32' -fill '#64c8ff' -draw 'circle 256,256 256,100' -fill white -pointsize 80 -gravity center -annotate +0+0 'AI' icon.png
+        convert -size 1080x1920 xc:'#1a1a2a' -fill '#64c8ff' -draw 'circle 540,600 540,450' -fill white -pointsize 120 -gravity center -annotate +0-300 'aiDroid' presplash.png
 
-    # RUFF-CHECK ENTFERNT - direkt zum Build
     - name: 🔨 Build APK
       uses: ArtemSBulgakov/buildozer-action@v1
       with:
         command: buildozer android debug
-        buildozer_version: stable
-      env:
-        GRADLE_OPTS: "-Xmx6144m -Dorg.gradle.daemon=false"
         
     - name: 📤 Upload APK
       uses: actions/upload-artifact@v4
@@ -52,4 +31,3 @@ jobs:
       with:
         name: aiDroid-S25-APK
         path: bin/*.apk
-        retention-days: 30
