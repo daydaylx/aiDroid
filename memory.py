@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sqlite3
 import os
+import sqlite3
 import json
-from datetime import datetime
 from kivy.utils import platform
 
 if platform == 'android':
@@ -20,7 +19,7 @@ class MemoryDB:
     def __init__(self, db_name="aidroid_memory.db"):
         self.db_name = db_name
         self.db_path = self._get_database_path()
-        self.init_database()
+        self._init_database()
 
     def _get_database_path(self):
         try:
@@ -29,18 +28,18 @@ class MemoryDB:
                 return os.path.join(app_dir, self.db_name)
             else:
                 return os.path.join(os.getcwd(), self.db_name)
-        except Exception as e:
+        except Exception:
             return os.path.join(os.getcwd(), self.db_name)
 
-    def init_database(self):
+    def _init_database(self):
         try:
             db_dir = os.path.dirname(self.db_path)
             if db_dir and not os.path.exists(db_dir):
                 os.makedirs(db_dir, exist_ok=True)
 
             conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            cursor.execute('''
+            cur = conn.cursor()
+            cur.execute('''
                 CREATE TABLE IF NOT EXISTS messages (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     content TEXT NOT NULL,
@@ -48,16 +47,16 @@ class MemoryDB:
                     message_type TEXT DEFAULT 'user'
                 )
             ''')
-            cursor.execute('''
+            cur.execute('''
                 CREATE TABLE IF NOT EXISTS responses (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     message_id INTEGER,
                     content TEXT NOT NULL,
                     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (message_id) REFERENCES messages (id)
+                    FOREIGN KEY (message_id) REFERENCES messages(id)
                 )
             ''')
-            cursor.execute('''
+            cur.execute('''
                 CREATE TABLE IF NOT EXISTS sessions (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     session_data TEXT,
@@ -68,17 +67,14 @@ class MemoryDB:
             conn.commit()
             conn.close()
         except Exception as e:
-            print(f"Error initializing database: {e}")
+            print(f"DB initialization error: {e}")
 
     def store_message(self, content, message_type="user"):
         try:
             conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO messages (content, message_type)
-                VALUES (?, ?)
-            ''', (content, message_type))
-            message_id = cursor.lastrowid
+            cur = conn.cursor()
+            cur.execute('INSERT INTO messages (content, message_type) VALUES (?, ?)', (content, message_type))
+            message_id = cur.lastrowid
             conn.commit()
             conn.close()
             return message_id
@@ -89,12 +85,9 @@ class MemoryDB:
     def store_response(self, message_id, content):
         try:
             conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO responses (message_id, content)
-                VALUES (?, ?)
-            ''', (message_id, content))
-            response_id = cursor.lastrowid
+            cur = conn.cursor()
+            cur.execute('INSERT INTO responses (message_id, content) VALUES (?, ?)', (message_id, content))
+            response_id = cur.lastrowid
             conn.commit()
             conn.close()
             return response_id
@@ -105,122 +98,38 @@ class MemoryDB:
     def get_recent_messages(self, limit=10):
         try:
             conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            cursor.execute('''
-                SELECT id, content, timestamp, message_type
-                FROM messages
-                ORDER BY timestamp DESC
-                LIMIT ?
-            ''', (limit,))
-            messages = cursor.fetchall()
+            cur = conn.cursor()
+            cur.execute('SELECT id, content, timestamp, message_type FROM messages ORDER BY timestamp DESC LIMIT ?', (limit,))
+            messages = cur.fetchall()
             conn.close()
             return messages
         except Exception as e:
-            print(f"Error getting recent messages: {e}")
+            print(f"Error fetching recent messages: {e}")
             return []
 
     def get_conversation_history(self, limit=20):
         try:
             conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            cursor.execute('''
+            cur = conn.cursor()
+            cur.execute('''
                 SELECT 
-                    m.id,
-                    m.content as message,
-                    m.timestamp as msg_time,
-                    r.content as response,
-                    r.timestamp as resp_time
+                    m.id, m.content, m.timestamp,
+                    r.content, r.timestamp
                 FROM messages m
                 LEFT JOIN responses r ON m.id = r.message_id
                 ORDER BY m.timestamp DESC
                 LIMIT ?
-            ''', (limit,))
-            history = cursor.fetchall()
+                ''', (limit,))
+            history = cur.fetchall()
             conn.close()
             return history
         except Exception as e:
-            print(f"Error getting conversation history: {e}")
+            print(f"Error fetching conversation history: {e}")
             return []
-
-    def save_session(self, session_data):
-        try:
-            json_data = json.dumps(session_data)
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO sessions (session_data)
-                VALUES (?)
-            ''', (json_data,))
-            session_id = cursor.lastrowid
-            conn.commit()
-            conn.close()
-            return session_id
-        except Exception as e:
-            print(f"Error saving session: {e}")
-            return None
-
-    def load_latest_session(self):
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            cursor.execute('''
-                SELECT session_data
-                FROM sessions
-                ORDER BY updated_at DESC
-                LIMIT 1
-            ''')
-            result = cursor.fetchone()
-            conn.close()
-            if result:
-                return json.loads(result[0])
-            return None
-        except Exception as e:
-            print(f"Error loading session: {e}")
-            return None
-
-    def clear_old_data(self, days=30):
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            cursor.execute(f'''
-                DELETE FROM messages WHERE timestamp < datetime('now', '-{days} days')
-            ''')
-            cursor.execute(f'''
-                DELETE FROM responses WHERE timestamp < datetime('now', '-{days} days')
-            ''')
-            cursor.execute(f'''
-                DELETE FROM sessions WHERE created_at < datetime('now', '-{days} days')
-            ''')
-            conn.commit()
-            conn.close()
-        except Exception as e:
-            print(f"Error clearing old data: {e}")
-
-    def get_database_info(self):
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            cursor.execute('SELECT COUNT(*) FROM messages')
-            message_count = cursor.fetchone()[0]
-            cursor.execute('SELECT COUNT(*) FROM responses')
-            response_count = cursor.fetchone()[0]
-            cursor.execute('SELECT COUNT(*) FROM sessions')
-            session_count = cursor.fetchone()[0]
-            conn.close()
-            return {
-                'database_path': self.db_path,
-                'message_count': message_count,
-                'response_count': response_count,
-                'session_count': session_count
-            }
-        except Exception as e:
-            print(f"Error getting database info: {e}")
-            return {}
 
 if __name__ == "__main__":
     db = MemoryDB()
-    msg_id = db.store_message("Hallo Samsung S25!")
+    msg_id = db.store_message("Hallo vom Galaxy S25!")
     if msg_id:
-        db.store_response(msg_id, "Willkommen auf dem Galaxy S25!")
+        db.store_response(msg_id, "Willkommen bei aiDroid auf deinem S25!")
     print(db.get_recent_messages(5))
-    print(db.get_database_info())

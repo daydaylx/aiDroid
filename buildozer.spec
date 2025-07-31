@@ -18,9 +18,6 @@ icon.filename = %(source.dir)s/icon.png
 presplash.filename = %(source.dir)s/presplash.png
 
 orientation = portrait
-osx.python_version = 3
-osx.kivy_version = 2.3.0
-
 fullscreen = 0
 android.presplash_color = #FFFFFF
 
