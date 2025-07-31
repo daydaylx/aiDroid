@@ -2,7 +2,6 @@
 """Tests für utils.py"""
 
 import pytest
-import asyncio
 import tempfile
 import os
 import sys

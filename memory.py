@@ -4,6 +4,7 @@
 import os
 import sqlite3
 import json
+import datetime
 from typing import List, Tuple, Optional, Dict, Any
 from kivy.utils import platform
 
@@ -115,7 +116,7 @@ class MemoryDB:
                     from jnius import autoclass
                     Build = autoclass('android.os.Build')
                     device_info = f"{Build.MANUFACTURER} {Build.MODEL} (Android {Build.VERSION.RELEASE})"
-                except:
+                except ImportError:
                     device_info = "Samsung Galaxy S25 (simulated)"
             
             cur.execute('''
@@ -291,7 +292,7 @@ class MemoryDB:
             data = {
                 'messages': [],
                 'responses': [],
-                'export_timestamp': sqlite3.datetime.datetime.now().isoformat()
+                'export_timestamp': datetime.datetime.now().isoformat()
             }
             
             # Messages exportieren

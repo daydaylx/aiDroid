@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os
 import sys
 import gc
-from typing import Optional, Any, Dict
+from typing import Optional, Any
 from kivy.utils import platform
 
 if platform == 'android':
@@ -37,7 +36,6 @@ from kivymd.uix.scrollview import MDScrollView
 from kivy.core.window import Window
 from kivy.clock import Clock
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 
 try:
     from memory import MemoryDB

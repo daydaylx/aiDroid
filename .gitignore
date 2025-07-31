@@ -57,3 +57,6 @@ buildozer-venv*/
 .venv/
 venv/
 env/
+# Backup directories
+backup/
+*_backup*/
