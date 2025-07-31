@@ -1,0 +1,27 @@
+# Core Framework
+kivy==2.3.1
+kivymd==2.0.1.dev0
+
+# Networking & Data
+requests==2.32.3
+pyjnius==1.6.1
+
+# Database & Storage
+sqlite3
+
+# Security
+cryptography==41.0.8
+keyring==24.3.0
+
+# Development Tools
+ruff==0.1.8
+black==23.12.1
+pytest==7.4.3
+pre-commit==3.6.0
+
+# Build Tools
+buildozer==1.5.0
+cython==3.0.8
+
+# Performance Monitoring
+psutil==5.9.8

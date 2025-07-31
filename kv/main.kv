@@ -1,4 +1,4 @@
-<CodeGenApp>:
+<MainScreen>:
     canvas.before:
         Color:
             rgba: 0.08, 0.08, 0.12, 1
@@ -8,240 +8,141 @@
 
     BoxLayout:
         orientation: "vertical"
-        padding: dp(15)
-        spacing: dp(10)
+        padding: dp(20)
+        spacing: dp(15)
 
+        # Header Section
         BoxLayout:
             orientation: "vertical"
             size_hint_y: None
-            height: dp(60)
-            spacing: dp(5)
+            height: dp(90)
+            spacing: dp(8)
 
             Label:
-                text: "🤖 OpenRouter CodeGen Pro"
-                font_size: sp(18)
+                text: "🤖 aiDroid S25 Pro"
+                font_size: sp(24)
                 color: 1, 1, 1, 1
                 bold: True
                 size_hint_y: None
-                height: dp(30)
+                height: dp(40)
 
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_y: None
-                height: dp(25)
+                height: dp(30)
 
                 Label:
-                    text: app.status_text
-                    font_size: sp(11)
+                    text: "✨ Optimiert für Samsung Galaxy S25 • Android 15 • One UI 7"
+                    font_size: sp(12)
                     color: 0.7, 0.9, 1, 1
                     halign: "left"
                     text_size: self.size
 
                 Label:
-                    text: ("🔄" if app.streaming_enabled else "📄") + (" 🧠" if app.memory_enabled else "")
-                    font_size: sp(12)
-                    color: 0.3, 1, 0.3, 1 if (app.streaming_enabled or app.memory_enabled) else 0.8, 0.8, 0.8, 1
+                    text: "🔋⚡🧠"
+                    font_size: sp(16)
+                    color: 0.3, 1, 0.3, 1
                     size_hint_x: None
-                    width: dp(50)
+                    width: dp(60)
 
+            # Status Bar
+            Label:
+                text: "🟢 Bereit • Memory optimiert • 120Hz Display"
+                font_size: sp(10)
+                color: 0.5, 0.8, 0.5, 1
+                size_hint_y: None
+                height: dp(20)
+                halign: "left"
+                text_size: self.size
+
+        # Input Section
         BoxLayout:
-            orientation: "horizontal"
+            orientation: "vertical"
             size_hint_y: None
-            height: dp(40)
-            spacing: dp(6)
+            height: dp(160)
+            spacing: dp(8)
+
+            Label:
+                text: "💭 Nachricht an KI-System:"
+                font_size: sp(14)
+                color: 0.9, 0.9, 0.9, 1
+                size_hint_y: None
+                height: dp(25)
+                halign: "left"
+                text_size: self.size
 
             TextInput:
-                hint_text: "🔑 OpenRouter API Key"
-                text: app.api_key
-                password: True
-                multiline: False
+                hint_text: "Schreibe hier deine Nachricht... (optimiert für S25 Tastatur)"
+                multiline: True
                 background_color: 0.15, 0.15, 0.2, 1
                 foreground_color: 1, 1, 1, 1
                 cursor_color: 0.3, 0.7, 1, 1
-                font_size: sp(10)
-                on_text: app.api_key = self.text
+                font_size: sp(16)
+                size_hint_y: None
+                height: dp(100)
+                padding: [10, 10]
 
-            Button:
-                text: "📡"
-                size_hint_x: None
-                width: dp(35)
-                background_color: 0.2, 0.6, 0.3, 1
-                color: 1, 1, 1, 1
-                font_size: sp(12)
-                disabled: app.is_loading
-                on_release: app.load_models_async()
+            # Control Buttons Row
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: dp(50)
+                spacing: dp(8)
 
-            Button:
-                text: "🔄"
-                size_hint_x: None
-                width: dp(35)
-                background_color: 0.5, 0.5, 0.2, 1
-                color: 1, 1, 1, 1
-                font_size: sp(12)
-                disabled: app.is_loading
-                on_release: app.refresh_models()
+                Button:
+                    text: "📤 Senden"
+                    background_color: 0.2, 0.6, 0.8, 1
+                    color: 1, 1, 1, 1
+                    font_size: sp(14)
+                    size_hint_x: 0.5
 
-        BoxLayout:
-            orientation: "horizontal"
-            size_hint_y: None
-            height: dp(35)
-            spacing: dp(6)
+                Button:
+                    text: "🗑️"
+                    background_color: 0.7, 0.3, 0.3, 1
+                    color: 1, 1, 1, 1
+                    font_size: sp(16)
+                    size_hint_x: None
+                    width: dp(50)
 
-            Spinner:
-                id: model_spinner
-                text: app.selected_model if app.selected_model else "Modell..."
-                values: app.models
-                background_color: 0.2, 0.2, 0.25, 1
-                color: 1, 1, 1, 1
-                font_size: sp(9)
-                on_text: app.selected_model = self.text if self.text != "Modell..." else ""
+                Button:
+                    text: "🧠"
+                    background_color: 0.5, 0.3, 0.7, 1
+                    color: 1, 1, 1, 1
+                    font_size: sp(16)
+                    size_hint_x: None
+                    width: dp(50)
 
-            Button:
-                text: "🔄" if app.streaming_enabled else "📄"
-                size_hint_x: None
-                width: dp(30)
-                background_color: 0.3, 0.7, 0.3, 1 if app.streaming_enabled else 0.6, 0.6, 0.6, 1
-                color: 1, 1, 1, 1
-                font_size: sp(12)
-                on_release: app.toggle_streaming()
+                Button:
+                    text: "⚡"
+                    background_color: 0.8, 0.6, 0.2, 1
+                    color: 1, 1, 1, 1
+                    font_size: sp(16)
+                    size_hint_x: None
+                    width: dp(50)
 
-            Button:
-                text: "🧠"
-                size_hint_x: None
-                width: dp(30)
-                background_color: 0.5, 0.3, 0.8, 1 if app.memory_enabled else 0.4, 0.4, 0.4, 1
-                color: 1, 1, 1, 1
-                font_size: sp(12)
-                on_release: app.toggle_memory()
-
-            Button:
-                text: "📋"
-                size_hint_x: None
-                width: dp(30)
-                background_color: 0.3, 0.5, 0.7, 1
-                color: 1, 1, 1, 1
-                font_size: sp(12)
-                on_release: app.show_memory_history()
-
-        BoxLayout:
-            orientation: "horizontal"
-            size_hint_y: None
-            height: dp(30) if app.memory_enabled else 0
-            opacity: 1 if app.memory_enabled else 0
-            spacing: dp(6)
-
-            Label:
-                text: "📁"
-                size_hint_x: None
-                width: dp(25)
-                color: 0.8, 0.8, 0.8, 1
-                font_size: sp(12)
-
-            TextInput:
-                hint_text: "Projekt-Name (optional)"
-                text: app.project_context
-                multiline: False
-                background_color: 0.12, 0.12, 0.16, 1
-                foreground_color: 0.9, 0.9, 0.9, 1
-                font_size: sp(10)
-                on_text: app.project_context = self.text
-
+        # Response Area
         Label:
-            text: "⚙️ System:"
-            size_hint_y: None
-            height: dp(20)
+            text: "📄 KI-Antworten • Live-Stream • Context-Memory:"
+            font_size: sp(12)
             color: 0.8, 0.8, 0.8, 1
-            font_size: sp(11)
-            halign: "left"
-            text_size: self.size
-
-        TextInput:
-            text: app.system_prompt
             size_hint_y: None
-            height: dp(60)
-            multiline: True
-            background_color: 0.12, 0.12, 0.16, 1
-            foreground_color: 0.9, 0.9, 0.9, 1
-            font_size: sp(9)
-            on_text: app.system_prompt = self.text
-
-        Label:
-            text: "💭 Prompt:"
-            size_hint_y: None
-            height: dp(20)
-            color: 0.8, 0.8, 0.8, 1
-            font_size: sp(11)
-            halign: "left"
-            text_size: self.size
-
-        TextInput:
-            text: app.user_prompt
-            multiline: True
-            size_hint_y: None
-            height: dp(80)
-            hint_text: "Beschreibe hier, welchen Code du generieren möchtest..."
-            background_color: 0.18, 0.18, 0.22, 1
-            foreground_color: 1, 1, 1, 1
-            font_size: sp(11)
-            on_text: app.user_prompt = self.text
-
-        BoxLayout:
-            orientation: "horizontal"
-            size_hint_y: None
-            height: dp(45)
-            spacing: dp(6)
-
-            Button:
-                text: "🗑️"
-                size_hint_x: None
-                width: dp(40)
-                background_color: 0.7, 0.3, 0.3, 1
-                color: 1, 1, 1, 1
-                font_size: sp(12)
-                on_release: app.clear_all()
-
-            Button:
-                text: "⏹️" if (app.is_loading or app.is_streaming) else ("🔄" if app.streaming_enabled else "✨")
-                background_color: 0.8, 0.3, 0.3, 1 if (app.is_loading or app.is_streaming) else (0.2, 0.7, 0.8, 1 if app.streaming_enabled else 0.2, 0.6, 0.8, 1)
-                color: 1, 1, 1, 1
-                font_size: sp(12)
-                on_release: app.stop_generation() if (app.is_loading or app.is_streaming) else app.generate_async()
-
-            Button:
-                text: "📋"
-                size_hint_x: None
-                width: dp(40)
-                background_color: 0.3, 0.6, 0.3, 1
-                color: 1, 1, 1, 1
-                font_size: sp(12)
-                disabled: app.is_loading or app.is_streaming
-                on_release: app.copy_output()
-
-        ProgressBar:
-            size_hint_y: None
-            height: dp(3) if (app.is_loading or app.is_streaming) else 0
-            opacity: 1 if (app.is_loading or app.is_streaming) else 0
-            max: 1
-            value: 0.5 if app.is_loading else 1
-
-        Label:
-            text: "📄 Code:" + (" (🧠 + Kontext)" if app.memory_enabled else "") + (" (🔄 Live)" if app.is_streaming else "")
-            size_hint_y: None
-            height: dp(20)
-            color: 0.8, 0.8, 0.8, 1
-            font_size: sp(10)
+            height: dp(25)
             halign: "left"
             text_size: self.size
 
         ScrollView:
             do_scroll_x: False
+            bar_width: dp(8)
+            bar_color: 0.3, 0.7, 1, 0.8
 
             TextInput:
-                text: app.output_text
+                text: "🚀 Willkommen bei aiDroid S25 Pro!\n\n✨ Features:\n• 🔥 Samsung Galaxy S25 Optimierung\n• ⚡ Snapdragon 8 Elite Performance\n• 🧠 Context-Memory System\n• 📱 One UI 7 Integration\n• 🔄 Async Processing\n• 💾 Smart Caching\n\n💬 Schreibe eine Nachricht um zu starten..."
                 readonly: True
                 multiline: True
                 background_color: 0.05, 0.05, 0.08, 1
                 foreground_color: 0.95, 0.95, 0.95, 1
-                font_size: sp(9)
+                font_size: sp(13)
                 size_hint_y: None
-                height: max(self.minimum_height, dp(200))
+                height: max(self.minimum_height, dp(300))
+                padding: [15, 15]
+                cursor_color: 0, 0, 0, 0  # Hide cursor

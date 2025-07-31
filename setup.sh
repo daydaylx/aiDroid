@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-echo "🔧 OpenRouter CodeGen - System Setup"
-echo "====================================="
+echo "🔧 aiDroid S25 - Erweiterte Setup-Umgebung"
+echo "============================================="
 
-# System packages
+# System packages für Ubuntu/Mint
 echo "📦 Installiere System-Abhängigkeiten..."
 sudo apt update
 sudo apt install -y \
@@ -13,22 +13,42 @@ sudo apt install -y \
     openjdk-17-jdk \
     libffi-dev libssl-dev libsqlite3-dev \
     zlib1g-dev libjpeg-dev libpng-dev \
-    adb
+    adb fastboot \
+    sqlite3
 
-# Python venv mit 3.11
-echo "🐍 Erstelle Python 3.11 venv..."
-python3.11 -m venv buildozer-venv
-source buildozer-venv/bin/activate
+# Python Virtual Environment
+echo "🐍 Erstelle Python 3.11 Virtual Environment..."
+python3.11 -m venv venv
+source venv/bin/activate
 
-# Python packages
+# Python Packages installieren
 echo "📚 Installiere Python-Pakete..."
-pip install --upgrade pip setuptools==65.5.1 wheel
-pip install buildozer cython requests kivy
+pip install --upgrade pip setuptools wheel
+pip install -r requirements-dev.txt
 
+# Pre-commit hooks installieren
+echo "🔗 Installiere Pre-commit Hooks..."
+pre-commit install
+
+# Buildozer initialisieren
+echo "🔨 Buildozer Setup..."
+buildozer init || echo "Buildozer bereits initialisiert"
+
+# Berechtigungen für ADB
+echo "📱 ADB-Berechtigungen konfigurieren..."
+sudo usermod -a -G plugdev $USER
+
+echo ""
 echo "✅ Setup komplett!"
 echo ""
-echo "Nächste Schritte:"
-echo "1. source buildozer-venv/bin/activate"
-echo "2. Deine OpenRouter API Key in apikey.txt speichern"
-echo "3. python3 main.py (Desktop-Test)"
-echo "4. buildozer android debug (APK bauen)"
+echo "🚀 Nächste Schritte:"
+echo "1. source venv/bin/activate"
+echo "2. python main.py                    # Desktop-Test"
+echo "3. buildozer android debug          # APK bauen"
+echo "4. adb install bin/*.apk            # Auf S25 installieren"
+echo ""
+echo "🔧 Development:"
+echo "• ruff check .                       # Code linting"
+echo "• black .                           # Code formatting"  
+echo "• pytest                           # Tests ausführen"
+echo "• pre-commit run --all-files       # Alle Hooks"
