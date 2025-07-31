@@ -33,6 +33,8 @@ env/
 ENV/
 env.bak/
 venv.bak/
+buildozer-venv/
+dev-tools-venv/
 
 # IDE
 .vscode/
@@ -57,7 +59,14 @@ buildozer.log
 # Cache
 cache/
 *.cache
+config/
 
 # Backup files
 *_backup*
 backup/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+

@@ -1,0 +1,7 @@
+# Core Framework - Stable versions for Android build
+kivy==2.2.2
+kivymd==1.1.1
+
+# Development Tools (optional)
+black==23.12.1
+
