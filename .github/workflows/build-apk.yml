@@ -1,4 +1,4 @@
-name: Build Android APK - Multi-Strategy
+name: Build Android APK - Auto Format
 
 on:
   push:
@@ -8,165 +8,55 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
-    timeout-minutes: 150
+    timeout-minutes: 120
     
     steps:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
-      
-    - name: 🧹 Aggressive Disk Cleanup
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: 🎨 Auto-Format Code
       run: |
-        echo "Performing aggressive disk cleanup..."
+        pip install black
+        black . --line-length=100
+        
+    - name: 💾 Commit Formatting Changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git diff --staged --quiet || git commit -m "🎨 AUTO: Black formatting applied"
+        git push || echo "No formatting changes needed"
+      continue-on-error: true
+      
+    - name: 🧹 Free Disk Space
+      run: |
         sudo rm -rf /usr/share/dotnet
         sudo rm -rf /opt/ghc
-        sudo rm -rf /usr/local/share/boost
-        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-        sudo rm -rf /opt/az
-        sudo rm -rf /usr/share/swift
-        sudo apt-get clean
-        sudo apt-get autoremove -y
-        docker system prune -af || true
-        
-        echo "Disk space after cleanup:"
         df -h
         
-    - name: 🎨 Create Simple Assets
+    - name: 🎨 Create Assets
       run: |
-        sudo apt-get update
-        sudo apt-get install -y imagemagick
+        sudo apt-get update && sudo apt-get install -y imagemagick
+        convert -size 512x512 xc:'#2196F3' -fill white -pointsize 80 -gravity center -annotate +0+0 'AI' icon.png
+        convert -size 1080x1920 xc:'#1565C0' -fill white -pointsize 120 -gravity center -annotate +0-200 'aiDroid' presplash.png
         
-        # Sehr einfache Assets die immer funktionieren
-        convert -size 512x512 xc:blue icon.png
-        convert -size 1080x1920 xc:darkblue presplash.png
-        
-        echo "✅ Simple assets created"
-        ls -la *.png
-
-    - name: 🔨 Build Strategy 1 - Default Versions
-      continue-on-error: true
-      id: build1
+    - name: 🔨 Build APK
       uses: ArtemSBulgakov/buildozer-action@v1
       with:
         command: buildozer android debug
         buildozer_version: stable
-      env:
-        GRADLE_OPTS: "-Xmx4096m -Dorg.gradle.daemon=false"
-        
-    - name: 🔨 Build Strategy 2 - Fallback Config
-      if: steps.build1.outcome == 'failure'
-      continue-on-error: true
-      id: build2
-      run: |
-        echo "First build failed, trying fallback configuration..."
-        
-        # Erstelle fallback buildozer.spec
-        cat > buildozer.spec <<'FALLBACK'
-[app]
-title = aiDroid S25 Pro
-package.name = aidroid
-package.domain = org.daydaylx
-source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,json,xml
-version = 2.0.0
-requirements = python3,kivy
-icon.filename = %(source.dir)s/icon.png
-presplash.filename = %(source.dir)s/presplash.png
-orientation = portrait
-fullscreen = 0
-android.permissions = INTERNET
-android.api = 28
-android.minapi = 21
-android.ndk = 21e
-android.ndk_api = 21
-android.private_storage = True
-android.archs = armeabi-v7a
-p4a.bootstrap = sdl2
-p4a.branch = master
-[buildozer]
-log_level = 2
-warn_on_root = 1
-FALLBACK
-        
-        # Cache löschen und neu versuchen
-        rm -rf .buildozer/
-        buildozer android debug
-        
-    - name: 🔨 Build Strategy 3 - Minimal Config
-      if: steps.build1.outcome == 'failure' && steps.build2.outcome == 'failure'
-      run: |
-        echo "Both builds failed, trying minimal configuration..."
-        
-        # Ultra-minimale Konfiguration
-        cat > buildozer.spec <<'MINIMAL'
-[app]
-title = aiDroid
-package.name = aidroid
-package.domain = org.test
-source.dir = .
-version = 1.0
-requirements = python3,kivy
-icon.filename = %(source.dir)s/icon.png
-presplash.filename = %(source.dir)s/presplash.png
-orientation = portrait
-android.permissions = INTERNET
-android.api = 27
-android.minapi = 21
-android.archs = armeabi-v7a
-p4a.bootstrap = sdl2
-[buildozer]
-log_level = 1
-MINIMAL
-        
-        # Erstelle noch einfachere main.py
-        cat > main.py <<'SIMPLE_MAIN'
-from kivy.app import App
-from kivy.uix.label import Label
-
-class SimpleApp(App):
-    def build(self):
-        return Label(text='aiDroid S25 Pro\nSamsung Galaxy optimiert!')
-
-SimpleApp().run()
-SIMPLE_MAIN
-        
-        rm -rf .buildozer/
-        buildozer android debug
-        
-    - name: 📊 Build Analysis
-      if: always()
-      run: |
-        echo "=== BUILD ANALYSIS ==="
-        echo "Strategy 1 (Default): ${{ steps.build1.outcome }}"
-        echo "Strategy 2 (Fallback): ${{ steps.build2.outcome }}"
-        echo "Strategy 3 (Minimal): ${{ steps.build3.outcome || 'not attempted' }}"
-        
-        if [ -d "bin" ] && [ "$(find bin/ -name '*.apk' | wc -l)" -gt 0 ]; then
-          echo "✅ SUCCESS: APK created!"
-          ls -la bin/
-          for apk in bin/*.apk; do
-            echo "APK: $apk ($(du -h "$apk" | cut -f1))"
-          done
-        else
-          echo "❌ FAILED: No APK generated"
-          echo "Checking for build artifacts..."
-          find . -name "*.apk" -o -name "*.log" | head -10
-        fi
         
     - name: 📤 Upload APK
       uses: actions/upload-artifact@v4
       if: success()
       with:
-        name: aiDroid-APK-MultiStrategy
+        name: aiDroid-S25-APK
         path: bin/*.apk
-        retention-days: 30
-        
-    - name: 📝 Upload Debug Logs
-      uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: debug-logs-all-strategies
-        path: |
-          .buildozer/
-          *.log
-          buildozer.spec
-        retention-days: 7
+
