@@ -5,22 +5,18 @@ import os
 import sys
 from kivy.utils import platform
 
+# Platform-specific imports
 if platform == 'android':
     try:
         from android.permissions import request_permissions, Permission
         from jnius import autoclass, cast
-        Build = autoclass('android.os.Build')
-        Environment = autoclass('android.os.Environment')
-        PythonActivity = autoclass('org.kivy.android.PythonActivity')
     except ImportError:
         print("Android-specific modules not available")
         request_permissions = None
         Permission = None
-        Build = None
 else:
     request_permissions = None
     Permission = None
-    Build = None
 
 from kivymd.app import MDApp
 from kivymd.uix.screen import MDScreen
@@ -32,6 +28,7 @@ from kivymd.uix.scrollview import MDScrollView
 from kivy.clock import Clock
 from kivy.core.window import Window
 
+# Import local modules
 try:
     from memory import MemoryDB
     from utils import NetworkHandler
@@ -44,8 +41,8 @@ class MainScreen(MDScreen):
         super().__init__(**kwargs)
         self.name = "main"
         self.build_ui()
-        if platform == 'android' and Build:
-            self.detect_samsung_device()
+        
+        # Initialize components
         try:
             self.memory_db = MemoryDB()
             self.network_handler = NetworkHandler()
@@ -54,121 +51,131 @@ class MainScreen(MDScreen):
             self.memory_db = None
             self.network_handler = None
 
-    def detect_samsung_device(self):
-        try:
-            manufacturer = Build.MANUFACTURER
-            model = Build.MODEL
-            sdk_int = Build.VERSION.SDK_INT
-            print(f"Device: {manufacturer} {model}")
-            print(f"Android SDK: {sdk_int}")
-            if "samsung" in manufacturer.lower() and "s25" in model.lower():
-                print("Samsung Galaxy S25 detected - enabling optimizations")
-        except Exception as e:
-            print(f"Error detecting Samsung device: {e}")
-
     def build_ui(self):
+        """Build the user interface"""
         main_layout = MDBoxLayout(
             orientation="vertical",
             padding="20dp",
             spacing="10dp"
         )
+
+        # Title
         title = MDLabel(
-            text="aiDroid for Samsung S25",
+            text="aiDroid",
             theme_text_color="Primary",
             size_hint_y=None,
             height="60dp",
             font_style="H4",
             halign="center"
         )
+        
+        # Input field
         self.text_input = MDTextField(
             hint_text="Enter your message...",
             multiline=True,
             size_hint_y=None,
-            height="120dp",
-            helper_text="Optimized for Samsung Galaxy S25",
-            helper_text_mode="persistent"
+            height="100dp"
         )
+        
+        # Send button
         send_button = MDRaisedButton(
-            text="Send Message",
+            text="Send",
             size_hint_y=None,
-            height="56dp",
+            height="50dp",
             on_release=self.send_message
         )
+        
+        # Response area
         self.response_scroll = MDScrollView()
         self.response_label = MDLabel(
-            text="Welcome to aiDroid on Samsung Galaxy S25!\nResponses will appear here...",
+            text="Responses will appear here...",
             theme_text_color="Secondary",
             text_size=(None, None),
             halign="left",
             valign="top"
         )
         self.response_scroll.add_widget(self.response_label)
+        
+        # Add all widgets to main layout
         main_layout.add_widget(title)
         main_layout.add_widget(self.text_input)
         main_layout.add_widget(send_button)
         main_layout.add_widget(self.response_scroll)
+        
         self.add_widget(main_layout)
 
     def send_message(self, instance):
+        """Handle message sending"""
         message = self.text_input.text.strip()
         if not message:
             return
+            
+        # Clear input
         self.text_input.text = ""
+        
+        # Process message
         try:
             if self.memory_db:
                 self.memory_db.store_message(message)
+            
             if self.network_handler:
                 response = self.network_handler.process_request(message)
-                self.update_response(f"✓ Samsung S25: {response}")
+                self.update_response(response)
             else:
                 self.update_response("Network handler not available")
+                
         except Exception as e:
             self.update_response(f"Error: {str(e)}")
 
     def update_response(self, response):
+        """Update the response display"""
         current_text = self.response_label.text
-        if "Welcome to aiDroid" in current_text:
+        if current_text == "Responses will appear here...":
             self.response_label.text = response
         else:
             self.response_label.text = f"{current_text}\n\n{response}"
-        if platform == 'android':
-            self.response_label.text_size = (Window.width - 40, None)
-        else:
-            self.response_label.text_size = (Window.width - 40, None)
+        
+        # Update text size for proper wrapping
+        self.response_label.text_size = (Window.width - 40, None)
 
 class aiDroidApp(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.title = "aiDroid - Samsung S25"
+        self.title = "aiDroid"
+        
     def build(self):
+        """Build the app"""
+        # Request permissions on Android
         if platform == 'android' and request_permissions and Permission:
-            self.request_samsung_permissions()
+            self.request_android_permissions()
+        
+        # Set window size for desktop
         if platform in ['win', 'linux', 'macosx']:
-            Window.size = (400, 800)
+            Window.size = (400, 600)
+            
         return MainScreen()
-    def request_samsung_permissions(self):
+
+    def request_android_permissions(self):
+        """Request necessary Android permissions"""
         try:
             permissions = [
                 Permission.INTERNET,
                 Permission.ACCESS_NETWORK_STATE,
-                Permission.ACCESS_WIFI_STATE,
                 Permission.READ_EXTERNAL_STORAGE,
                 Permission.WRITE_EXTERNAL_STORAGE,
-                Permission.READ_MEDIA_IMAGES,
-                Permission.READ_MEDIA_AUDIO,
-                Permission.READ_MEDIA_VIDEO
+                Permission.ACCESS_WIFI_STATE
             ]
             request_permissions(permissions)
-            print("Samsung Galaxy S25 permissions requested")
+            print("Android permissions requested")
         except Exception as e:
-            print(f"Error requesting Samsung permissions: {e}")
+            print(f"Error requesting permissions: {e}")
+
     def on_start(self):
-        if platform == 'android' and Build:
-            model = Build.MODEL
-            print(f"aiDroid started on {model}")
-        else:
-            print("aiDroid app started (development mode)")
+        """Called when the app starts"""
+        print("aiDroid app started successfully")
+        
     def on_stop(self):
+        """Called when the app stops"""
         print("aiDroid app stopped")
 
 if __name__ == "__main__":
@@ -178,3 +185,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error starting app: {e}")
         sys.exit(1)
+EOF
+

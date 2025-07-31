@@ -7,7 +7,7 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,json,xml
 
 version = 0.1
-requirements = python3==3.9,kivy==2.3.0,kivymd,requests,sqlite3,android,pyjnius,filetype,cython==0.29.33
+requirements = python3,kivy==2.3.0,kivymd,requests,sqlite3,android,pyjnius,filetype,cython==0.29.33
 
 [buildozer]
 log_level = 2
@@ -24,19 +24,28 @@ osx.kivy_version = 2.3.0
 fullscreen = 0
 android.presplash_color = #FFFFFF
 
-android.permissions = INTERNET,ACCESS_NETWORK_STATE,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE,ACCESS_WIFI_STATE,MANAGE_EXTERNAL_STORAGE,READ_MEDIA_IMAGES,READ_MEDIA_VIDEO,READ_MEDIA_AUDIO
+android.permissions = INTERNET,ACCESS_NETWORK_STATE,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE,ACCESS_WIFI_STATE
 
-android.api = 34
-android.minapi = 26
-android.sdk = 34
+android.api = 33
+android.minapi = 21
+android.sdk = 33
 android.ndk = 25b
-android.ndk_api = 26
+android.ndk_api = 21
 android.private_storage = True
-
-android.archs = arm64-v8a
 android.add_packaging_options = packagingOptions { pickFirst '**/libc++_shared.so' }
+
+android.gradle_dependencies = 
+
+android.add_gradle_repositories = 
+
+android.archs = arm64-v8a, armeabi-v7a
 
 p4a.branch = master
 p4a.bootstrap = sdl2
 
 garden_requirements = 
+
+[buildozer]
+bin_dir = /home/user/.buildozer/android/platform/android-sdk/tools/bin
+EOF
+
