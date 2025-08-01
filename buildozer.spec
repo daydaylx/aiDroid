@@ -22,3 +22,5 @@ p4a.branch = master
 [buildozer]
 log_level = 2
 warn_on_root = 1
+cython.options = --compiler-directives=language_level=3
+cython.options = --compiler-directives=language_level=3
