@@ -1,4 +1,4 @@
-name: Build Android APK - Samsung S25 (No Lint/Format)
+name: Build Android APK - Samsung S25 (Cython-Fix)
 
 on:
   push:
@@ -25,14 +25,8 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y imagemagick
-        convert -size 512x512 xc:'#2196F3' \
-                -fill white -pointsize 80 -gravity center \
-                -annotate +0+0 'AI' icon.png
-        convert -size 1080x1920 xc:'#1565C0' \
-                -fill white -pointsize 120 -gravity center \
-                -annotate +0-300 'aiDroid' \
-                -pointsize 80 -annotate +0-150 'Samsung S25 Pro' \
-                presplash.png
+        convert -size 512x512 xc:'#2196F3' -fill white -pointsize 80 -gravity center -annotate +0+0 'AI' icon.png
+        convert -size 1080x1920 xc:'#1565C0' -fill white -pointsize 120 -gravity center -annotate +0-300 'aiDroid' -pointsize 80 -annotate +0-150 'Samsung S25 Pro' presplash.png
         ls -la *.png
 
     - name: 🔨 Build APK with Buildozer
@@ -43,6 +37,7 @@ jobs:
       env:
         GRADLE_OPTS: "-Xmx4096m -Dorg.gradle.daemon=false"
         JAVA_OPTS: "-Xmx2048m"
+        CYTHONIZE_OPTIONS: "--compiler-directives=language_level=3"
 
     - name: 📤 Upload APK Artifact
       uses: actions/upload-artifact@v4
@@ -62,4 +57,3 @@ jobs:
           *.log
           buildozer.spec
         retention-days: 7
-
