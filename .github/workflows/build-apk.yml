@@ -1,4 +1,4 @@
-name: Build aiDroid APK - Samsung S25
+name: Build Android APK - Samsung S25 (No Lint/Format)
 
 on:
   push:
@@ -9,43 +9,50 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     timeout-minutes: 120
-    
+
     steps:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
-      
+
     - name: 🧹 Free Disk Space
       run: |
         sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
-        sudo apt-get clean
+        sudo apt-get clean -y
         docker system prune -af || true
         df -h
-        
-    - name: 🎨 Create Assets
-      run: |
-        sudo apt-get update && sudo apt-get install -y imagemagick
-        convert -size 512x512 xc:'#2196F3' -fill white -pointsize 80 -gravity center -annotate +0+0 'AI' icon.png
-        convert -size 1080x1920 xc:'#1565C0' -fill white -pointsize 120 -gravity center -annotate +0-300 'aiDroid' -pointsize 80 -annotate +0-150 'Samsung S25 Pro' presplash.png
-        echo "✅ Assets created" && ls -la *.png
 
-    - name: 🔨 Build APK
+    - name: 🎨 Create Required Assets
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y imagemagick
+        convert -size 512x512 xc:'#2196F3' \
+                -fill white -pointsize 80 -gravity center \
+                -annotate +0+0 'AI' icon.png
+        convert -size 1080x1920 xc:'#1565C0' \
+                -fill white -pointsize 120 -gravity center \
+                -annotate +0-300 'aiDroid' \
+                -pointsize 80 -annotate +0-150 'Samsung S25 Pro' \
+                presplash.png
+        ls -la *.png
+
+    - name: 🔨 Build APK with Buildozer
       uses: ArtemSBulgakov/buildozer-action@v1
       with:
         command: buildozer android debug
         buildozer_version: stable
       env:
-        GRADLE_OPTS: "-Xmx6144m -Dorg.gradle.daemon=false"
-        JAVA_OPTS: "-Xmx4096m"
-        
-    - name: 📤 Upload APK
+        GRADLE_OPTS: "-Xmx4096m -Dorg.gradle.daemon=false"
+        JAVA_OPTS: "-Xmx2048m"
+
+    - name: 📤 Upload APK Artifact
       uses: actions/upload-artifact@v4
       if: success()
       with:
         name: aiDroid-S25-APK
         path: bin/*.apk
         retention-days: 30
-        
-    - name: 📝 Upload Logs on Failure
+
+    - name: 📝 Upload Build Logs on Failure
       uses: actions/upload-artifact@v4
       if: failure()
       with:
@@ -53,4 +60,6 @@ jobs:
         path: |
           .buildozer/
           *.log
+          buildozer.spec
         retention-days: 7
+
