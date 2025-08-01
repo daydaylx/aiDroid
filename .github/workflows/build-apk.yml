@@ -1,4 +1,4 @@
-name: Build Android APK - Auto Format
+name: Build aiDroid APK - Samsung S25
 
 on:
   push:
@@ -13,45 +13,29 @@ jobs:
     steps:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        
-    - name: 🐍 Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-        
-    - name: 🎨 Auto-Format Code
-      run: |
-        pip install black
-        black . --line-length=100
-        
-    - name: 💾 Commit Formatting Changes
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        git diff --staged --quiet || git commit -m "🎨 AUTO: Black formatting applied"
-        git push || echo "No formatting changes needed"
-      continue-on-error: true
       
     - name: 🧹 Free Disk Space
       run: |
-        sudo rm -rf /usr/share/dotnet
-        sudo rm -rf /opt/ghc
+        sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
+        sudo apt-get clean
+        docker system prune -af || true
         df -h
         
     - name: 🎨 Create Assets
       run: |
         sudo apt-get update && sudo apt-get install -y imagemagick
         convert -size 512x512 xc:'#2196F3' -fill white -pointsize 80 -gravity center -annotate +0+0 'AI' icon.png
-        convert -size 1080x1920 xc:'#1565C0' -fill white -pointsize 120 -gravity center -annotate +0-200 'aiDroid' presplash.png
-        
+        convert -size 1080x1920 xc:'#1565C0' -fill white -pointsize 120 -gravity center -annotate +0-300 'aiDroid' -pointsize 80 -annotate +0-150 'Samsung S25 Pro' presplash.png
+        echo "✅ Assets created" && ls -la *.png
+
     - name: 🔨 Build APK
       uses: ArtemSBulgakov/buildozer-action@v1
       with:
         command: buildozer android debug
         buildozer_version: stable
+      env:
+        GRADLE_OPTS: "-Xmx6144m -Dorg.gradle.daemon=false"
+        JAVA_OPTS: "-Xmx4096m"
         
     - name: 📤 Upload APK
       uses: actions/upload-artifact@v4
@@ -59,4 +43,14 @@ jobs:
       with:
         name: aiDroid-S25-APK
         path: bin/*.apk
-
+        retention-days: 30
+        
+    - name: 📝 Upload Logs on Failure
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: build-logs
+        path: |
+          .buildozer/
+          *.log
+        retention-days: 7
