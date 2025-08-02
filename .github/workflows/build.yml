@@ -1,0 +1,60 @@
+name: Build Android APK (stable)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-android-apk:
+    name: "📱 Build APK with Buildozer"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🧰 Install System Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            git zip unzip openjdk-17-jdk python3-pip \
+            build-essential libncurses5 libstdc++6 \
+            libffi-dev libssl-dev libsqlite3-dev zlib1g-dev
+
+      - name: 🐍 Install Python Tools
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install Cython buildozer
+
+      - name: 💾 Restore Buildozer Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .buildozer
+            ~/.buildozer
+            ~/.android
+            ~/.gradle
+          key: buildozer-cache-v1-${{ runner.os }}
+
+      - name: 🛠️ Build APK
+        run: |
+          buildozer android debug
+
+      - name: 🧪 Check for APK Existence
+        run: |
+          test -f bin/*.apk || (echo '❌ APK not found!' && exit 1)
+
+      - name: 📤 Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aiDroid-debug.apk
+          path: bin/*.apk
+
+      - name: 🪵 Upload Build Logs (bei Fehlern immer!)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: .buildozer/android/platform/build-arm64-v8a/build/outputs/
