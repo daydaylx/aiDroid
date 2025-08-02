@@ -1,28 +1,18 @@
-#!/usr/bin/env python3
-
+import kivy
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
-from kivy.uix.button import Button
+from kivy.lang import Builder
 
+kivy.require('2.2.1') # replace with your current Kivy version
 
-class SimpleApp(App):
+Builder.load_file('kv/main.kv')
+
+class MainWidget(BoxLayout):
+    pass
+
+class aiDroidApp(App):
     def build(self):
-        layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
+        return MainWidget()
 
-        title = Label(
-            text="aiDroid S25 Pro\nSamsung Galaxy Optimierung", font_size="20sp"
-        )
-
-        button = Button(
-            text="Samsung S25 Features aktivieren", size_hint_y=None, height="50dp"
-        )
-
-        layout.add_widget(title)
-        layout.add_widget(button)
-
-        return layout
-
-
-if __name__ == "__main__":
-    SimpleApp().run()
+if __name__ == '__main__':
+    aiDroidApp().run()

@@ -1,148 +1,91 @@
-<MainScreen>:
+#:kivy 2.2.1
+#:import utils kivy.utils
+
+<MainWidget>:
+    orientation: "vertical"
+    padding: dp(8)
+    spacing: dp(8)
     canvas.before:
         Color:
-            rgba: 0.08, 0.08, 0.12, 1
+            rgb: utils.get_color_from_hex('#1e1e2d')
         Rectangle:
             pos: self.pos
             size: self.size
 
+    # Chat Log Section
+    ScrollView:
+        id: chat_log_scroll
+        size_hint_y: 1
+        GridLayout:
+            id: chat_log
+            cols: 1
+            size_hint_y: None
+            height: self.minimum_height
+            spacing: dp(8)
+            padding: dp(8)
+            row_default_height: dp(50)
+            row_force_default: True
+
+    # Input Section
     BoxLayout:
         orientation: "vertical"
-        padding: dp(20)
-        spacing: dp(15)
+        size_hint_y: None
+        height: dp(160)
+        spacing: dp(8)
+        padding: dp(8)
+        canvas.before:
+            Color:
+                rgb: utils.get_color_from_hex('#2c2c3e')
+            RoundedRectangle:
+                pos: self.pos
+                size: self.size
+                radius: [dp(10)]
 
-        # Header Section
-        BoxLayout:
-            orientation: "vertical"
-            size_hint_y: None
-            height: dp(90)
-            spacing: dp(8)
-
-            Label:
-                text: "🤖 aiDroid S25 Pro"
-                font_size: sp(24)
-                color: 1, 1, 1, 1
-                bold: True
-                size_hint_y: None
-                height: dp(40)
-
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_y: None
-                height: dp(30)
-
-                Label:
-                    text: "✨ Optimiert für Samsung Galaxy S25 • Android 15 • One UI 7"
-                    font_size: sp(12)
-                    color: 0.7, 0.9, 1, 1
-                    halign: "left"
-                    text_size: self.size
-
-                Label:
-                    text: "🔋⚡🧠"
-                    font_size: sp(16)
-                    color: 0.3, 1, 0.3, 1
-                    size_hint_x: None
-                    width: dp(60)
-
-            # Status Bar
-            Label:
-                text: "🟢 Bereit • Memory optimiert • 120Hz Display"
-                font_size: sp(10)
-                color: 0.5, 0.8, 0.5, 1
-                size_hint_y: None
-                height: dp(20)
-                halign: "left"
-                text_size: self.size
-
-        # Input Section
-        BoxLayout:
-            orientation: "vertical"
-            size_hint_y: None
-            height: dp(160)
-            spacing: dp(8)
-
-            Label:
-                text: "💭 Nachricht an KI-System:"
-                font_size: sp(14)
-                color: 0.9, 0.9, 0.9, 1
-                size_hint_y: None
-                height: dp(25)
-                halign: "left"
-                text_size: self.size
-
-            TextInput:
-                hint_text: "Schreibe hier deine Nachricht... (optimiert für S25 Tastatur)"
-                multiline: True
-                background_color: 0.15, 0.15, 0.2, 1
-                foreground_color: 1, 1, 1, 1
-                cursor_color: 0.3, 0.7, 1, 1
-                font_size: sp(16)
-                size_hint_y: None
-                height: dp(100)
-                padding: [10, 10]
-
-            # Control Buttons Row
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_y: None
-                height: dp(50)
-                spacing: dp(8)
-
-                Button:
-                    text: "📤 Senden"
-                    background_color: 0.2, 0.6, 0.8, 1
-                    color: 1, 1, 1, 1
-                    font_size: sp(14)
-                    size_hint_x: 0.5
-
-                Button:
-                    text: "🗑️"
-                    background_color: 0.7, 0.3, 0.3, 1
-                    color: 1, 1, 1, 1
-                    font_size: sp(16)
-                    size_hint_x: None
-                    width: dp(50)
-
-                Button:
-                    text: "🧠"
-                    background_color: 0.5, 0.3, 0.7, 1
-                    color: 1, 1, 1, 1
-                    font_size: sp(16)
-                    size_hint_x: None
-                    width: dp(50)
-
-                Button:
-                    text: "⚡"
-                    background_color: 0.8, 0.6, 0.2, 1
-                    color: 1, 1, 1, 1
-                    font_size: sp(16)
-                    size_hint_x: None
-                    width: dp(50)
-
-        # Response Area
         Label:
-            text: "📄 KI-Antworten • Live-Stream • Context-Memory:"
-            font_size: sp(12)
-            color: 0.8, 0.8, 0.8, 1
+            text: "💭 Nachricht an KI-System:"
+            font_size: sp(14)
+            color: 0.9, 0.9, 0.9, 1
             size_hint_y: None
             height: dp(25)
             halign: "left"
             text_size: self.size
 
-        ScrollView:
-            do_scroll_x: False
-            bar_width: dp(8)
-            bar_color: 0.3, 0.7, 1, 0.8
+        TextInput:
+            hint_text: "Schreibe hier deine Nachricht... (optimiert für S25 Tastatur)"
+            multiline: True
+            background_color: 0.15, 0.15, 0.2, 1
+            foreground_color: 1, 1, 1, 1
+            cursor_color: 0.3, 0.7, 1, 1
+            font_size: sp(16)
+            size_hint_y: None
+            height: dp(100)
+            padding: [10, 10]
 
-            TextInput:
-                text: "🚀 Willkommen bei aiDroid S25 Pro!\n\n✨ Features:\n• 🔥 Samsung Galaxy S25 Optimierung\n• ⚡ Snapdragon 8 Elite Performance\n• 🧠 Context-Memory System\n• 📱 One UI 7 Integration\n• 🔄 Async Processing\n• 💾 Smart Caching\n\n💬 Schreibe eine Nachricht um zu starten..."
-                readonly: True
-                multiline: True
-                background_color: 0.05, 0.05, 0.08, 1
-                foreground_color: 0.95, 0.95, 0.95, 1
-                font_size: sp(13)
-                size_hint_y: None
-                height: max(self.minimum_height, dp(300))
-                padding: [15, 15]
-                cursor_color: 0, 0, 0, 0  # Hide cursor
+        # Control Buttons Row
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: dp(50)
+            spacing: dp(8)
+
+            Button:
+                text: "📤 Senden"
+                background_color: 0.2, 0.6, 0.8, 1
+                color: 1, 1, 1, 1
+                font_size: sp(14)
+                size_hint_x: 0.5
+                on_release: app.root.send_message(self.parent.parent.children[1].text) # This is a placeholder for the send logic
+
+            Button:
+                text: "📋 Kopieren"
+                background_color: 0.2, 0.2, 0.3, 1
+                color: 1, 1, 1, 1
+                font_size: sp(14)
+                size_hint_x: 0.25
+            
+            Button:
+                text: "🗑️ Löschen"
+                background_color: 0.8, 0.2, 0.2, 1
+                color: 1, 1, 1, 1
+                font_size: sp(14)
+                size_hint_x: 0.25
