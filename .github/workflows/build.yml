@@ -20,8 +20,20 @@ jobs:
           sudo apt update
           sudo apt install -y \
             git zip unzip openjdk-17-jdk python3-pip \
-            build-essential libncurses5 libstdc++6 \
+            build-essential libstdc++6 \
             libffi-dev libssl-dev libsqlite3-dev zlib1g-dev
+      
+      - name: Install missing libncurses5 dependencies
+        run: |
+          # Download and install libtinfo5 from Launchpad
+          curl -O http://launchpadlibrarian.net/648013231/libtinfo5_6.4-2_amd64.deb
+          sudo dpkg -i libtinfo5_6.4-2_amd64.deb
+          rm libtinfo5_6.4-2_amd64.deb
+
+          # Download and install libncurses5 from Launchpad
+          curl -O http://launchpadlibrarian.net/648013227/libncurses5_6.4-2_amd64.deb
+          sudo dpkg -i libncurses5_6.4-2_amd64.deb
+          rm libncurses5_6.4-2_amd64.deb
 
       - name: 🐍 Install Python Tools
         run: |
