@@ -22,15 +22,21 @@ jobs:
             git zip unzip openjdk-17-jdk python3-pip \
             build-essential libstdc++6 \
             libffi-dev libssl-dev libsqlite3-dev zlib1g-dev
-      
-      - name: Install missing libncurses5 dependencies
+
+      - name: 🧠 Add Swap to avoid OOM Kill (4 GB)
         run: |
-          # Download and install libtinfo5 from Launchpad
+          sudo fallocate -l 4G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
+      - name: 🔗 Install missing libncurses5/libtinfo5 dependencies
+        run: |
           curl -O http://launchpadlibrarian.net/648013231/libtinfo5_6.4-2_amd64.deb
           sudo dpkg -i libtinfo5_6.4-2_amd64.deb
           rm libtinfo5_6.4-2_amd64.deb
 
-          # Download and install libncurses5 from Launchpad
           curl -O http://launchpadlibrarian.net/648013227/libncurses5_6.4-2_amd64.deb
           sudo dpkg -i libncurses5_6.4-2_amd64.deb
           rm libncurses5_6.4-2_amd64.deb
@@ -40,7 +46,7 @@ jobs:
           python3 -m pip install --upgrade pip
           pip install Cython buildozer
 
-      - name: 💾 Restore Buildozer Cache
+      - name: 💾 Restore Buildozer/Android/Gradle Cache
         uses: actions/cache@v4
         with:
           path: |
@@ -48,11 +54,18 @@ jobs:
             ~/.buildozer
             ~/.android
             ~/.gradle
-          key: buildozer-cache-v1-${{ runner.os }}
+          key: buildozer-cache-v1-${{ runner.os }}-${{ hashFiles('**/buildozer.spec') }}
 
-      - name: 🛠️ Build APK
+      - name: ✅ Accept Android SDK Licenses
         run: |
-          buildozer android debug
+          # Nur ausführen, wenn SDK bereits existiert
+          if [ -d "$HOME/.buildozer/android/platform/android-sdk" ]; then
+            yes | $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager --licenses || true
+          fi
+
+      - name: 🛠️ Build APK (verbose)
+        run: |
+          buildozer -v android debug
 
       - name: 🧪 Check for APK Existence
         run: |
@@ -69,4 +82,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-logs
-          path: .buildozer/android/platform/build-arm64-v8a/build/outputs/
+          path: |
+            .buildozer/
+            bin/
