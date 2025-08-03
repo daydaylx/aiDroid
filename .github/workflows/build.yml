@@ -8,21 +8,21 @@ on:
 jobs:
   build-android-apk:
     name: "📱 Build APK with Buildozer"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
 
     steps:
       - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
-      - name: 🧰 Install System Dependencies
+      - name: 🧰 Install System Dependencies (inkl. Autotools für libffi!)
         run: |
           sudo apt update
           sudo apt install -y \
+            automake autoconf libtool pkg-config \
             git zip unzip openjdk-17-jdk python3-pip \
             build-essential libstdc++6 \
-            libffi-dev libssl-dev libsqlite3-dev zlib1g-dev \
-            automake libtool autoconf
+            libffi-dev libssl-dev libsqlite3-dev zlib1g-dev
 
       - name: 🧠 Add Swap to avoid OOM Kill (4 GB)
         run: |
@@ -62,11 +62,6 @@ jobs:
           if [ -d "$HOME/.buildozer/android/platform/android-sdk" ]; then
             yes | $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager --licenses || true
           fi
-
-      - name: 🛠️ Update Autotools Macros (Workaround für alte configure.ac)
-        run: |
-          find . -name "configure.ac" -execdir autoupdate \;
-          find . -name "configure.ac" -execdir autoreconf -vi \; || true
 
       - name: 📁 Check working directory for main.py & buildozer.spec
         run: |
