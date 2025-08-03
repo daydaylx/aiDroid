@@ -58,13 +58,18 @@ jobs:
 
       - name: ✅ Accept Android SDK Licenses
         run: |
-          # Nur ausführen, wenn SDK bereits existiert
           if [ -d "$HOME/.buildozer/android/platform/android-sdk" ]; then
             yes | $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager --licenses || true
           fi
 
+      - name: 📁 Check working directory for main.py & buildozer.spec
+        run: |
+          cd ${{ github.workspace }}
+          ls -la
+
       - name: 🛠️ Build APK (verbose)
         run: |
+          cd ${{ github.workspace }}
           buildozer -v android debug
 
       - name: 🧪 Check for APK Existence
