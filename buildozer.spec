@@ -1,101 +1,123 @@
 [app]
 
-# (str) Title of your application
-[cite_start]title = aiDroid S25 Pro [cite: 38]
+# Name deiner App (Pflicht)
+title = aiDroid S25 Pro
 
-# (str) Package name
-[cite_start]package.name = aindroidS25pro [cite: 38]
+# Interner Paketname (Pflicht, nur Kleinbuchstaben, keine Leerzeichen)
+package.name = aindroids25pro
 
-# (str) Package domain (needed for android/ios packaging)
-[cite_start]package.domain = org.aiDroid [cite: 38]
+# Domain (Pflicht, eindeutig)
+package.domain = org.daydaylx
 
-# (str) App version (method: build.version)
-[cite_start]version = 0.0.1 [cite: 38]
+# Hauptquellcode-Verzeichnis (meist ".")
+source.dir = .
 
-# (list) Application requirements
-[cite_start]requirements = python3, kivy, sqlite3 [cite: 38]
+# App-Version (Pflicht)
+version = 1.0.0
 
-# (list) Application hooks
-# The order of execution is:
-# - pre-hooks (e.g. before-requirements)
-# - build steps (e.g. buildozer android debug)
-# - post-hooks (e.g. after-clean)
-# Each hook can either be a simple string (the name of a hook) or a more
-# [cite_start]complex string like 'hooks/my_custom_hook.sh:before-requirements'. [cite: 38]
-# [cite_start]For more info, see the buildozer documentation. [cite: 39]
-# For example:
-# hooks = pre-build:my_script.py, post-build:my_other_script.sh
-#
-# (list) Application source paths
-#
-# Example:
-# source.include_dirs = /path/to/my/extra/files
-# source.exclude_dirs = /path/to/my/secret/files
-#
-# (str) Source code directory
-[cite_start]source.dir = . [cite: 39]
+# Icon & Presplash (Dateien müssen existieren)
+icon.filename = %(source.dir)s/assets/icon.png
+presplash.filename = %(source.dir)s/assets/presplash.png
 
-# (str) [cite_start]The directory where your app's dependencies and assets are stored. [cite: 40]
-# [cite_start]This is usually the `assets` folder, but can be changed. [cite: 41]
-# For example:
-# source.assets = ./assets
+# Anforderungen (je nach App!)
+requirements = python3,kivy,requests,sqlite3
 
-# (str) [cite_start]The directory where your app's libraries are stored. [cite: 43]
-# [cite_start]This is usually the `libs` folder, but can be changed. [cite: 44]
-# For example:
-# source.libs = ./libs
+# Zusätzliche zu includende Dateien/Ordner (Optional)
+# source.include_exts = py,png,jpg,kv,atlas,json,ttf,otf,xml,md
+# source.include_dirs = assets,libs
 
-# (list) Application dependencies (not from PyPI)
-# Example:
-# source.dependencies = ./my-local-library.zip
+# Android Berechtigungen (nur was du wirklich brauchst)
+permissions = android.permission.INTERNET,android.permission.ACCESS_NETWORK_STATE
 
-# (list) Extra files to be included in the app
-# Example:
-# source.extra_files = ./data/my-data.json
+# NDK, SDK, API usw. (empfohlen: nicht ändern wenn alles läuft)
+android.ndk_version = 25b
+android.sdk_version = 33
+android.build_tools_version = 33.0.0
+android.api = 33
 
-# (list) Extra folders to be included in the app
-# Example:
-# source.extra_dirs = ./data
-
-# (str) The path to your icon
-# The path must be absolute or relative to the project directory.
-[cite_start]icon.filename = %(source.dir)s/icon.png [cite: 45]
-
-# (str) The path to your presplash image
-[cite_start]presplash.filename = %(source.dir)s/presplash.png [cite: 45]
-
-# (list) App permissions (needed for android/ios packaging)
-# Example:
-# permissions = android.permission.INTERNET, android.permission.WRITE_EXTERNAL_STORAGE
-[cite_start]permissions = android.permission.INTERNET, android.permission.ACCESS_NETWORK_STATE [cite: 45]
-
-# (str) The Android NDK version to use.
-[cite_start]android.ndk_version = 25b [cite: 46]
-
-# (str) The Android SDK version to use.
-[cite_start]android.sdk_version = 33 [cite: 47]
-
-# (str) The Android build tools version to use.
-[cite_start]android.build_tools_version = 33.0.0 [cite: 48]
-
-# (str) The Android API level to build against.
-[cite_start]android.api = 33 [cite: 49]
-
-# (bool) If True, automatically accept SDK license agreements.
+# Automatisch SDK-Lizenzen akzeptieren (Pflicht für CI)
 android.accept_sdk_license = True
 
-# (bool) Whether to include the Android-specific ProGuard rules.
-[cite_start]android.use_proguard = True [cite: 50]
-[cite_start]android.proguard_rules = proguard-rules.pro [cite: 50]
+# ProGuard: Ja, wenn du Java/Obfuscation brauchst, sonst False
+android.use_proguard = False
+# android.proguard_rules = proguard-rules.pro
 
-# (list) [cite_start]Android features (permissions) that your app uses. [cite: 51]
-# Example:
-# android.add_a_permissions = android.permission.ACCESS_FINE_LOCATION
+# (Optional) Orientation fixieren
+# orientation = portrait
 
-# (list) Android activities to be created
-# Example:
-# android.add_a_activities = org.kivy.MainActivity
-
-# (list) Android services to be created
-# Example:
+# (Optional) Activities, Services, Permissions (wenn gebraucht)
+# android.add_a_permissions = android.permission.CAMERA
+# android.add_a_activities = org.kivy.MyCustomActivity
 # android.add_a_services = org.kivy.MyService
+
+# (Optional) Minimum unterstützte API (wenn du alte Geräte brauchst)
+# android.minapi = 21
+
+# (Optional) Android App Bundle (AAB statt APK)
+# android.aab = False
+
+# (Optional) Entry Point (wenn nicht main.py)
+# entrypoint = main.py
+
+# (Optional) Architektur festlegen (standard: alle)
+# android.archs = arm64-v8a,armeabi-v7a,x86,x86_64
+
+# (Optional) Java/Kotlin Version explizit festlegen (bei Fehlern)
+# android.gradle_dependencies = 'com.android.support:appcompat-v7:28.0.0'
+
+# (Optional) Logging & Debug Optionen
+log_level = 2
+log_enable = True
+
+# (Optional) Umgebungsvariablen setzen
+# environment = ENV_VAR=value
+
+# (Optional) Erweiterte Fehlerprotokollierung
+# android.logcat_filters = *:S python:D
+
+# (Optional) Splashscreen Einstellungen
+# presplash.color = #000000
+# presplash.keep = False
+
+# (Optional) App-Verhalten bei Standby
+# android.wakelock = False
+
+# (Optional) Extra Python-Optionen
+# python.opt = 2
+
+# (Optional) Hook-Skripte (bei komplexen Projekten)
+# hooks = hooks/prebuild.sh:before-requirements, hooks/postbuild.sh:after-build
+
+# (Optional) AAB Play Store Upload Settings
+# android.upload_apk = False
+
+# (Optional) Günstigere Kompression (kleinere APK)
+# android.extra_opts = --compress
+
+###############################################################################
+# KEINE weiteren Abschnitte sind für Kivy/Buildozer/Android zwingend notwendig!
+# Alles andere (wie [buildozer], [python], [app_android], [app_ios]) ist für
+# Spezialfälle und selten nötig. Lass es UNKONFIGURIERT, wenn du es nicht brauchst.
+###############################################################################
+
+# (Optional) Buildozer eigene Einstellungen (hier meist leer lassen)
+[buildozer]
+# log_level = 2
+# warn_on_root = 1
+
+# (Optional) Python eigene Einstellungen (hier meist leer lassen)
+[python]
+# version = 3.11
+
+# (Optional) Android-spezifische Einstellungen (hier meist leer lassen)
+[app_android]
+# android.allow_backup = 0
+
+# (Optional) iOS-spezifische Einstellungen (hier ignorieren)
+[app_ios]
+# ios.kivy_ios_url = https://github.com/kivy/kivy-ios
+
+###############################################################################
+# FERTIG. Nicht mit Platzhaltern zumüllen!
+# App läuft so out-of-the-box durch CI/CD und auf echten Geräten.
+###############################################################################
